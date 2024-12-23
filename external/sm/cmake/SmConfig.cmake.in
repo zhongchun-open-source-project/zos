@@ -1,0 +1,16 @@
+# - Config file for the SM package
+# It defines the following variables
+#  SM_INCLUDE_DIRS - include directories for FooBar
+#  SM_LIBRARIES    - libraries to link against
+ 
+# Compute paths
+get_filename_component(SM_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(SM_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+ 
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT SM_BINARY_DIR)
+  include("${SM_CMAKE_DIR}/SmTargets.cmake")
+endif()
+ 
+# These are IMPORTED targets created by SmTargets.cmake
+set(SM_LIBRARIES sm)

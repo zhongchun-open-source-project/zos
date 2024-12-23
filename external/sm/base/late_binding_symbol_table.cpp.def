@@ -1,0 +1,61 @@
+// Copyright (c) 2023 Beijing Zhongchun Technology Co., Ltd. All Rights Reserved.
+
+// This file is a supermacro
+// (see http://wanderinghorse.net/computing/papers/supermacros_cpp.html) to
+// expand a definition of a late-binding symbol table class.
+//
+// Arguments:
+// LATE_BINDING_SYMBOL_TABLE_CLASS_NAME: Name of the class to generate.
+// LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST: List of symbols to load from the DLL,
+//     as an X-Macro list (see http://www.drdobbs.com/blogs/cpp/228700289).
+// LATE_BINDING_SYMBOL_TABLE_DLL_NAME: String literal for the DLL file name to
+//     load.
+//
+// From a .cpp file, include the header file containing your call to the .h.def
+// supermacro, and then call this supermacro (optionally from inside the
+// namespace for the class to generate, if any). Example:
+//
+// #include "myclassname.h"
+//
+// namespace foo {
+//
+// #define LATE_BINDING_SYMBOL_TABLE_CLASS_NAME MY_CLASS_NAME
+// #define LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST MY_SYMBOLS_LIST
+// #define LATE_BINDING_SYMBOL_TABLE_DLL_NAME "libdll.so.n"
+// #include "sm/base/late_binding_symbol_table.cc.def"
+//
+// }
+
+#ifndef LATE_BINDING_SYMBOL_TABLE_CLASS_NAME
+#error You must define LATE_BINDING_SYMBOL_TABLE_CLASS_NAME
+#endif
+
+#ifndef LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST
+#error You must define LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST
+#endif
+
+#ifndef LATE_BINDING_SYMBOL_TABLE_DLL_NAME
+#error You must define LATE_BINDING_SYMBOL_TABLE_DLL_NAME
+#endif
+
+#define X(sym) #sym,
+const char* const LATE_BINDING_SYMBOL_TABLE_CLASS_NAME::kSymbolNames[] = {
+  LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST
+};
+#undef X
+
+const ::LateBindingSymbolTable::TableInfo
+    LATE_BINDING_SYMBOL_TABLE_CLASS_NAME::kTableInfo = {
+  LATE_BINDING_SYMBOL_TABLE_DLL_NAME,
+  SYMBOL_TABLE_SIZE,
+  LATE_BINDING_SYMBOL_TABLE_CLASS_NAME::kSymbolNames
+};
+
+LATE_BINDING_SYMBOL_TABLE_CLASS_NAME::LATE_BINDING_SYMBOL_TABLE_CLASS_NAME()
+    : ::LateBindingSymbolTable(&kTableInfo, table_) {}
+
+LATE_BINDING_SYMBOL_TABLE_CLASS_NAME::~LATE_BINDING_SYMBOL_TABLE_CLASS_NAME() {}
+
+#undef LATE_BINDING_SYMBOL_TABLE_CLASS_NAME
+#undef LATE_BINDING_SYMBOL_TABLE_SYMBOLS_LIST
+#undef LATE_BINDING_SYMBOL_TABLE_DLL_NAME
